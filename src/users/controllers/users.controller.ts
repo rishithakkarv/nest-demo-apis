@@ -10,7 +10,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { UsersService } from './users.service';
+import { UsersService } from '../services/users.service';
 
 @Controller('users')
 export class UsersController {
