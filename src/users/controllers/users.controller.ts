@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -8,8 +9,11 @@ import {
   Post,
   Req,
   Res,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { CreateUserDto, UpdateUserDto } from '../dtos/CreateUser.dto';
 import { UsersService } from '../services/users.service';
 
 @Controller('users')
@@ -32,22 +36,24 @@ export class UsersController {
   }
 
   @Post('/add')
-  addNew(@Req() req: Request, @Res() res: Response) {
-    const allUsers = this.usersService.add(req.body);
+  @UsePipes(ValidationPipe)
+  addNew(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+    const allUsers = this.usersService.add(createUserDto);
     if (allUsers.success) {
-      res.status(201).send(allUsers);
+      res.send(allUsers);
     } else {
       res.status(400).send(allUsers);
     }
   }
 
   @Patch('/update/:id')
+  @UsePipes(ValidationPipe)
   updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Req() req: Request,
+    @Body() updateDto: UpdateUserDto,
     @Res() res: Response,
   ) {
-    const updatedUserData = this.usersService.update(id, req.body);
+    const updatedUserData = this.usersService.update(id, updateDto);
     if (updatedUserData.success) {
       res.send(updatedUserData);
     } else {

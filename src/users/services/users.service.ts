@@ -1,15 +1,10 @@
 import { Injectable } from '@nestjs/common';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: Date;
-}
+import { CreateUserDto, UpdateUserDto } from '../dtos/CreateUser.dto';
+import { User } from '../types/User';
 
 @Injectable()
 export class UsersService {
-  users = [
+  private users: User[] = [
     {
       id: 1,
       name: 'Rishi',
@@ -40,32 +35,33 @@ export class UsersService {
     };
   }
 
-  add(data: User) {
-    const isExists = this.users.find((user) => user.email === data.email);
-    if (!isExists) {
+  add(userDto: CreateUserDto) {
+    const isExists = this.users.find((user) => user.email === userDto.email);
+    if (isExists) {
+      return { success: false, data: {}, msg: 'User already exists!' };
+    } else {
       const ids: number[] = this.users.map((user) => user.id);
       const nextId = Math.max(...ids) + 1;
-      data.id = nextId;
-      data.createdAt = new Date();
-      this.users.push(data);
+      userDto.id = nextId;
+      userDto.createdAt = new Date();
+      this.users.push(userDto);
+
       return {
         success: true,
         data: this.users,
         msg: 'User added successfully!',
       };
-    } else {
-      return { success: false, data: {}, msg: 'User already exists!' };
     }
   }
 
-  update(id: number, data: User) {
-    if (id && data) {
+  update(id: number, updateDto: UpdateUserDto) {
+    if (id && updateDto) {
       const isExists = this.users.find((user) => user.id === id);
       if (isExists) {
         // Update user
         this.users.map((user) => {
           if (user.id === id) {
-            user.name = data.name;
+            user.name = updateDto.name;
           }
         });
         return {
