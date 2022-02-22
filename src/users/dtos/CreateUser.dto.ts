@@ -8,8 +8,3 @@ export class CreateUserDto {
   email: string;
   createdAt: Date;
 }
-
-export class UpdateUserDto {
-  @IsNotEmpty()
-  name: string;
-}
