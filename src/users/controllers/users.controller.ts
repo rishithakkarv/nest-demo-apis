@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -10,6 +11,7 @@ import {
   Post,
   Req,
   Res,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -24,6 +26,7 @@ export class UsersController {
     @Inject('USER_SERVICE') private readonly usersService: UsersService,
   ) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   getUsers() {
     return this.usersService.allUsers();

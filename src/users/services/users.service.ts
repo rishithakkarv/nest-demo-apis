@@ -26,7 +26,7 @@ export class UsersService {
   allUsers() {
     return {
       success: true,
-      data: this.users.map((user) => plainToClass(SerializeUser, user)),
+      data: this.users.map((user) => new SerializeUser(user)),
       msg: 'Users',
     };
   }

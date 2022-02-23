@@ -8,10 +8,5 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
   createdAt: Date;
-  @Exclude()
   password: string;
-
-  constructor(partial: Partial<CreateUserDto>) {
-    Object.assign(this, partial)
-  }
 }
