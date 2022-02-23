@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class CreateUserDto {
@@ -7,4 +8,10 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
   createdAt: Date;
+  @Exclude()
+  password: string;
+
+  constructor(partial: Partial<CreateUserDto>) {
+    Object.assign(this, partial)
+  }
 }

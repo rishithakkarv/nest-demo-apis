@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from '../dtos/CreateUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUserDto.dto';
-import { User } from '../types/User';
+import { SerializeUser, User } from '../types/User';
 
 @Injectable()
 export class UsersService {
@@ -11,17 +12,23 @@ export class UsersService {
       name: 'Rishi',
       email: 'rishi@test.com',
       createdAt: new Date(),
+      password: '123#123',
     },
     {
       id: 2,
       name: 'Khushi',
       email: 'khushi@test.com',
       createdAt: new Date(),
+      password: '123#123',
     },
   ];
 
   allUsers() {
-    return { success: true, data: this.users, msg: 'Users' };
+    return {
+      success: true,
+      data: this.users.map((user) => plainToClass(SerializeUser, user)),
+      msg: 'Users',
+    };
   }
 
   findUserById(id: number) {
@@ -31,7 +38,10 @@ export class UsersService {
     }
     return {
       success: true,
-      data: this.users.find((user) => user.id === id),
+      data: plainToClass(
+        SerializeUser,
+        this.users.find((user) => user.id === id),
+      ),
       msg: 'User',
     };
   }
@@ -49,7 +59,7 @@ export class UsersService {
 
       return {
         success: true,
-        data: this.users,
+        data: this.users.map((user) => plainToClass(SerializeUser, user)),
         msg: 'User added successfully!',
       };
     }
@@ -67,7 +77,10 @@ export class UsersService {
         });
         return {
           success: true,
-          data: this.users.find((user) => user.id === id),
+          data: plainToClass(
+            SerializeUser,
+            this.users.find((user) => user.id === id),
+          ),
           msg: 'User updated successfully!',
         };
       } else {

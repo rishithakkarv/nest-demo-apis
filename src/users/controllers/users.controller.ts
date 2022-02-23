@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   ParseIntPipe,
   Patch,
@@ -19,7 +20,9 @@ import { UsersService } from '../services/users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    @Inject('USER_SERVICE') private readonly usersService: UsersService,
+  ) {}
 
   @Get()
   getUsers() {
