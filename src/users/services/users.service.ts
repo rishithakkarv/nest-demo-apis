@@ -1,111 +1,73 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
+import { User as UserEntity } from 'src/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/CreateUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUserDto.dto';
-import { SerializeUser, User } from '../types/User';
+import { SerializeUser } from '../types/User';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: 1,
-      name: 'Rishi',
-      email: 'rishi@test.com',
-      createdAt: new Date(),
-      password: '123#123',
-    },
-    {
-      id: 2,
-      name: 'Khushi',
-      email: 'khushi@test.com',
-      createdAt: new Date(),
-      password: '123#123',
-    },
-  ];
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
+  ) {}
 
-  allUsers() {
+  async allUsers() {
+    const allUsers = await this.userRepo.find();
     return {
       success: true,
-      data: this.users.map((user) => new SerializeUser(user)),
+      data: allUsers.map((user) => new SerializeUser(user)),
       msg: 'Users',
     };
   }
 
-  findUserById(id: number) {
-    const isExists = this.users.find((user) => user.id === id);
-    if (!isExists) {
+  async findUserById(id: number) {
+    const user = await this.userRepo.findOne(id);
+    if (!user) {
       return { success: false, data: {}, msg: 'User not exists!' };
     }
     return {
       success: true,
-      data: plainToClass(
-        SerializeUser,
-        this.users.find((user) => user.id === id),
-      ),
+      data: plainToClass(SerializeUser, user),
       msg: 'User',
     };
   }
 
-  add(userDto: CreateUserDto) {
-    const isExists = this.users.find((user) => user.email === userDto.email);
-    if (isExists) {
-      return { success: false, data: {}, msg: 'User already exists!' };
-    } else {
-      const ids: number[] = this.users.map((user) => user.id);
-      const nextId = Math.max(...ids) + 1;
-      userDto.id = nextId;
-      userDto.createdAt = new Date();
-      this.users.push(userDto);
+  async create(userDto: CreateUserDto) {
+    const user = this.userRepo.create({ ...userDto, createdAt: new Date() });
+    return {
+      success: true,
+      data: await this.userRepo.save(user),
+      msg: 'User added successfully!',
+    };
+  }
 
+  async update(id: number, updateDto: UpdateUserDto) {
+    const isUpdated = await this.userRepo.update(id, updateDto);
+    if (isUpdated?.affected > 0) {
+      const updatedUsre = await this.userRepo.findOne(id);
       return {
         success: true,
-        data: this.users.map((user) => plainToClass(SerializeUser, user)),
-        msg: 'User added successfully!',
+        data: plainToClass(SerializeUser, updatedUsre),
+        msg: 'User updated successfully!',
       };
-    }
-  }
-
-  update(id: number, updateDto: UpdateUserDto) {
-    if (id && updateDto) {
-      const isExists = this.users.find((user) => user.id === id);
-      if (isExists) {
-        // Update user
-        this.users.map((user) => {
-          if (user.id === id) {
-            user.name = updateDto.name;
-          }
-        });
-        return {
-          success: true,
-          data: plainToClass(
-            SerializeUser,
-            this.users.find((user) => user.id === id),
-          ),
-          msg: 'User updated successfully!',
-        };
-      } else {
-        return { success: false, data: {}, msg: 'User not exists!' };
-      }
     } else {
-      return { success: false, data: {}, msg: 'Invalid data!' };
+      return { success: false, data: {}, msg: 'User not exists!' };
     }
   }
 
-  delete(id: number) {
-    if (id) {
-      const isExists = this.users.find((user) => user.id === id);
-      if (!isExists) {
-        return { success: false, data: {}, msg: 'User not exists!' };
-      }
-
-      this.users = this.users.filter((user) => user.id != id);
+  async delete(id: number) {
+    const isDeleted = await this.userRepo.delete(id);
+    if (isDeleted?.affected > 0) {
       return {
         success: true,
         data: {},
         msg: 'User deleted successfully!',
       };
     } else {
-      return { success: false, data: {}, msg: 'Invalid data!' };
+      return { success: false, data: {}, msg: 'User not exists!' };
     }
   }
 }

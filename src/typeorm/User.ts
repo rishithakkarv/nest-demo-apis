@@ -26,6 +26,8 @@ export class User {
   })
   password: string;
 
-  @Column()
+  @Column({
+    name: 'created_at',
+  })
   createdAt: Date;
 }

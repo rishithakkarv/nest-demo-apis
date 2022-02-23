@@ -33,8 +33,11 @@ export class UsersController {
   }
 
   @Get(':id')
-  getUserById(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
-    const userDetails = this.usersService.findUserById(id);
+  async getUserById(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    const userDetails = await this.usersService.findUserById(id);
     if (userDetails.success) {
       res.status(200).send(userDetails);
     } else {
@@ -44,8 +47,8 @@ export class UsersController {
 
   @Post('/add')
   @UsePipes(ValidationPipe)
-  addNew(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
-    const allUsers = this.usersService.add(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+    const allUsers = await this.usersService.create(createUserDto);
     if (allUsers.success) {
       res.send(allUsers);
     } else {
@@ -55,12 +58,12 @@ export class UsersController {
 
   @Patch('/update/:id')
   @UsePipes(ValidationPipe)
-  updateUser(
+  async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserDto,
     @Res() res: Response,
   ) {
-    const updatedUserData = this.usersService.update(id, updateDto);
+    const updatedUserData = await this.usersService.update(id, updateDto);
     if (updatedUserData.success) {
       res.send(updatedUserData);
     } else {
@@ -69,8 +72,11 @@ export class UsersController {
   }
 
   @Delete('/delete/:id')
-  deleteUser(@Param('id', ParseIntPipe) id: number, @Res() res: Response) {
-    const allUsers = this.usersService.delete(id);
+  async deleteUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: Response,
+  ) {
+    const allUsers = await this.usersService.delete(id);
     if (allUsers.success) {
       res.send(allUsers);
     } else {

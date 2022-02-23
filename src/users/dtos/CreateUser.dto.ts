@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   id: number;
@@ -8,5 +8,7 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
   createdAt: Date;
+  @IsNotEmpty()
+  @MinLength(6)
   password: string;
 }
