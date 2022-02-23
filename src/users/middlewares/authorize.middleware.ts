@@ -1,14 +1,23 @@
-import { HttpException, HttpStatus, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
+@Injectable()
 export class AuthorizeMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    console.log('req.header: ', req.headers);
-    if (req.headers?.authorization) {
+    const { authorization } = req.headers;
+    if (!authorization) {
+      return res.status(403).send({
+        success: false,
+        data: null,
+        msg: 'Authentication is not provided!',
+      });
+    } else if (authorization === 'Bearer jwt') {
       // Will validate JWT here
       next();
     } else {
-      throw new HttpException('User not authorized!', HttpStatus.UNAUTHORIZED);
+      return res
+        .status(401)
+        .send({ success: false, data: null, msg: 'User is not authorized' });
     }
   }
 }
