@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
-import { User as UserEntity } from 'src/typeorm';
+import { User as UserEntity } from '../../typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/CreateUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUserDto.dto';
@@ -36,10 +36,9 @@ export class UsersService {
   }
 
   async create(userDto: CreateUserDto) {
-    const user = this.userRepo.create({ ...userDto, createdAt: new Date() });
     return {
       success: true,
-      data: await this.userRepo.save(user),
+      data: await this.userRepo.save({ ...userDto, createdAt: new Date() }),
       msg: 'User added successfully!',
     };
   }

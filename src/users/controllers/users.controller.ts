@@ -28,8 +28,9 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  getUsers() {
-    return this.usersService.allUsers();
+  async getUsers(@Res() res: Response) {
+    const allUsers = await this.usersService.allUsers();
+    res.status(200).send(allUsers);
   }
 
   @Get(':id')
