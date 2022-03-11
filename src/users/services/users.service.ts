@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { User as UserEntity } from '../../typeorm';
@@ -6,67 +6,54 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/CreateUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUserDto.dto';
 import { SerializeUser } from '../types/User';
+import { FormatedResponse, FormatResponse } from 'src/utils/FormatResponse';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
-  ) {}
+  ) { }
 
-  async allUsers() {
+  async allUsers(): Promise<FormatedResponse<UserEntity[]>> {
     const allUsers = await this.userRepo.find();
-    return {
-      success: true,
-      data: allUsers.map((user) => new SerializeUser(user)),
-      msg: 'Users',
-    };
+
+    const userData: any = allUsers.map((user) => new SerializeUser(user));
+
+    return FormatResponse<UserEntity[]>(true, userData, 'all users', HttpStatus.OK);
   }
 
-  async findUserById(id: number) {
+  async findUserById(id: number): Promise<FormatedResponse<UserEntity>> {
     const user = await this.userRepo.findOne(id);
     if (!user) {
-      return { success: false, data: {}, msg: 'User not exists!' };
+      return FormatResponse<UserEntity>(false, null, 'User not exists', HttpStatus.BAD_REQUEST)
     }
-    return {
-      success: true,
-      data: plainToClass(SerializeUser, user),
-      msg: 'User',
-    };
+    const response = plainToClass(SerializeUser, user)
+    return FormatResponse<UserEntity>(true, response, 'User get successfully', HttpStatus.OK)
   }
 
-  async create(userDto: CreateUserDto) {
-    return {
-      success: true,
-      data: await this.userRepo.save({ ...userDto, createdAt: new Date() }),
-      msg: 'User added successfully!',
-    };
+  async create(userDto: CreateUserDto): Promise<FormatedResponse<UserEntity>> {
+    const response = await this.userRepo.save({ ...userDto, createdAt: new Date() })
+    return FormatResponse<UserEntity>(true, response, 'User added successfully', HttpStatus.CREATED)
   }
 
-  async update(id: number, updateDto: UpdateUserDto) {
+  async update(id: number, updateDto: UpdateUserDto): Promise<FormatedResponse<UserEntity>> {
     const isUpdated = await this.userRepo.update(id, updateDto);
     if (isUpdated?.affected > 0) {
       const updatedUsre = await this.userRepo.findOne(id);
-      return {
-        success: true,
-        data: plainToClass(SerializeUser, updatedUsre),
-        msg: 'User updated successfully!',
-      };
+      const response = plainToClass(SerializeUser, updatedUsre)
+      return FormatResponse<UserEntity>(true, response, 'User updated successfully', HttpStatus.OK)
     } else {
-      return { success: false, data: {}, msg: 'User not exists!' };
+      return FormatResponse<UserEntity>(false, null, 'User not exists', HttpStatus.BAD_REQUEST)
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<FormatedResponse<boolean>> {
     const isDeleted = await this.userRepo.delete(id);
     if (isDeleted?.affected > 0) {
-      return {
-        success: true,
-        data: {},
-        msg: 'User deleted successfully!',
-      };
+      return FormatResponse<boolean>(true, null, 'User deleted successfully', HttpStatus.OK)
     } else {
-      return { success: false, data: {}, msg: 'User not exists!' };
+      return FormatResponse<boolean>(false, null, 'User not exists', HttpStatus.BAD_REQUEST)
     }
   }
 }
