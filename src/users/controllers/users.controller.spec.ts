@@ -5,17 +5,6 @@ import { Request, Response } from 'express';
 describe('UsersController', () => {
   let controller: UsersController;
 
-  const userResMock = {
-    success: true,
-    data: {},
-    msg: '',
-  };
-
-  const requestMock = {
-    params: {},
-    body: {},
-  } as unknown as Request;
-
   const statusResponseMock = {
     send: jest.fn((s) => s),
   };
@@ -45,7 +34,7 @@ describe('UsersController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should get user data', async () => {
+  it('should return status 200', async () => {
     controller.getUsers(responseMock);
     expect(await responseMock.status).toHaveBeenCalledWith(200);
   });

@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/CreateUser.dto';
 import { UpdateUserDto } from '../dtos/UpdateUserDto.dto';
 import { SerializeUser } from '../types/User';
-import { FormatedResponse, FormatResponse } from 'src/utils/FormatResponse';
+import { FormatedResponse, FormatResponse } from '../../utils/FormatResponse';
 
 @Injectable()
 export class UsersService {
